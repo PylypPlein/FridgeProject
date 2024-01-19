@@ -1,0 +1,60 @@
+{% extends "main/base.html" %}
+
+{% block title %}User Fridges{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1 class="text-center">Your Fridge</h1>
+
+        {% if user_fridge %}
+            <div class="card">
+                <h5 class="card-header">{{ user_fridge.name }}</h5>
+                <div class="card-body">
+                    <p>Brand: {{ user_fridge.brand }}</p>
+                    <p>Model: {{ user_fridge.model }}</p>
+                    <p>Capacity: {{ user_fridge.capacity }} liters</p>
+                </div>
+            </div>
+
+            <h2 class="text-center">Products in Your Fridge</h2>
+
+            {% if user_fridge.fridgeproduct_set.all %}
+                {% regroup user_fridge.fridgeproduct_set.all by product.category as fridge_products_by_category %}
+
+                {% for category, fridge_products in fridge_products_by_category %}
+                    <div class="card">
+                        <h5 class="card-header">{{ category }}</h5>
+                        <div class="card-body">
+                            <ul class="list-group">
+                                {% for fridge_product in fridge_products %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            {{ fridge_product.product.name }} - Quantity: {{ fridge_product.quantity }},
+                                            Expiration Date: {{ fridge_product.product.expiration_date }}
+                                        </div>
+                                        <div class="ml-auto">
+                                            <!-- Button to modify quantity -->
+                                            <form method="post" action="{% url 'main:modify_quantity' fridge_product.id %}">
+                                                {% csrf_token %}
+                                                <div class="input-group">
+                                                    <input type="number" name="new_quantity" value="{{ fridge_product.quantity }}" min="0" class="form-control">
+                                                    <div class="input-group-append">
+                                                        <button type="submit" class="btn btn-dark">Modify</button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No products in your fridge yet.</p>
+            {% endif %}
+        {% else %}
+            <p>You haven't created any fridges yet.</p>
+        {% endif %}
+    </div>
+{% endblock %}

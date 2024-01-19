@@ -1,0 +1,104 @@
+<!-- main/products_manage.html -->
+
+{% extends "main/base.html" %}
+
+{% block title %}Manage Products{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1>Add Product to Database</h1>
+        <form method="post" action="{% url 'main:products_manage' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Add Product</button>
+        </form>
+
+        <h2>Existing Products</h2>
+        {% if categories %}
+            <ul class="nav nav-tabs">
+                {% for category in categories %}
+                    <li class="nav-item">
+                        <a class="nav-link{% if forloop.first %} active{% endif %}" id="{{ category }}-tab" data-toggle="tab" href="#{{ category }}">{{ category }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+            <div class="tab-content">
+                {% for category, products in products_by_category.items %}
+                <div class="tab-pane fade{% if forloop.first %} show active{% endif %}" id="{{ category }}">
+                    <div class="card-deck">
+                        <div class="container mt-3">
+                        <div class="row">
+                            {% for product in products %}
+                            <div class="col-md-12">
+                                <div class="card text-center mb-3">
+                                    <div class="card-header">
+                                        <ul class="nav nav-tabs card-header-tabs">
+                                            <!-- You can add any tabs or navigation elements here -->
+                                        </ul>
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ product.name }}</h5>
+                                        {% if product.quantity %}
+                                            <p class="card-text">Quantity: {{ product.quantity }}</p>
+                                        {% endif %}
+                                        <form method="post" action="{% url 'main:add_to_fridge' product.id %}" class="add-to-fridge-form">
+                                            {% csrf_token %}
+                                            <input type="number" name="quantity" value="0" min="0">
+                                            <input type="hidden" name="product_id" value="{{ product.id }}">
+                                            <select name="fridge">
+                                                {% for fridge in fridges %}
+                                                    <option value="{{ fridge.id }}">{{ fridge.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <button type="button" class="btn btn-success add-to-fridge-btn">Add to Fridge</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            </div>
+        {% else %}
+            <p>No existing products yet.</p>
+        {% endif %}
+    </div>
+
+<script>
+    jQuery(document).ready(function() {
+        jQuery(".add-to-fridge-btn").click(function() {
+            // Get the form associated with the clicked button
+            var form = jQuery(this).closest("form");
+
+            // Get form data
+            var formData = form.serialize();
+
+            // Dynamically construct the URL
+            var productId = form.find("input[name='product_id']").val();
+            var url = "{% url 'main:add_to_fridge' 0 %}".replace('0', productId);
+
+            // Submit form via AJAX
+            jQuery.ajax({
+                type: "POST",
+                url: url,
+                data: formData,
+                success: function(response) {
+                    // Handle success, e.g., show a success message
+                    alert("Product added to fridge successfully!");
+                },
+                error: function(error) {
+                    // Handle error, e.g., show an error message
+                    alert("Failed to add product to fridge. Please try again.");
+                }
+            });
+        });
+    });
+</script>
+
+
+
+{% endblock %}

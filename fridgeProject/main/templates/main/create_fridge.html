@@ -1,0 +1,38 @@
+{% extends "main/base.html" %}
+
+{% block title %}Create Fridge{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="card">
+            <h5 class="card-header">Create a Fridge</h5>
+            <div class="card-body">
+                <form method="post" action="{% url 'main:create_fridge' %}" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+                    <div class="form-group">
+                        <label for="{{ form.name.id_for_label }}">Fridge Name:</label>
+                        {{ form.name }}
+                        <div class="invalid-feedback">{{ form.name.errors.0 }}</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.brand.id_for_label }}">Brand:</label>
+                        {{ form.brand }}
+                        <div class="invalid-feedback">{{ form.brand.errors.0 }}</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.model.id_for_label }}">Model:</label>
+                        {{ form.model }}
+                        <div class="invalid-feedback">{{ form.model.errors.0 }}</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.capacity.id_for_label }}">Capacity:</label>
+                        {{ form.capacity }}
+                        <div class="invalid-feedback">{{ form.capacity.errors.0 }}</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Fridge</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
